@@ -146,6 +146,8 @@ Here are some great resources for getting help with loading data using readr.
 In the empty codeblock below, read in the Baltimore data and store it as an object called acros_md_baltimorecity
 
 ```{r}
+# Read in data for Baltimore City, MD
+arcos_md_baltimorecity <-read_csv("data/arcos-md-baltimore-city-24510-pharmacy.csv")
 
 ```
 
@@ -171,7 +173,7 @@ glimpse(arcos_wv_mingo)
 **Task (Write Code and Run It)**: Now it's your turn. In the empty codeblock below, use the `glimpse()` function to get a sense of the Baltimore data you loaded above. 
 
 ```{r}
-
+glimpse(arcos_md_baltimorecity)
 ```
 
 ### Option 2: display the data in the markdown document
@@ -192,6 +194,8 @@ arcos_wv_mingo
 **Task (Write Code and Run It)**: Now it's your turn. In the empty codeblock below, display the Baltimore data in the markdown document. 
 
 ```{r}
+
+arcos_md_baltimorecity
 
 ```
 
@@ -253,7 +257,8 @@ arcos_wv_mingo_pharmacies <- arcos_wv_mingo %>%
 
 ```{r}
 
-
+arcos_md_baltimorecity_pharmacies <- arcos_md_baltimorecity %>%
+  select(buyer_name)
 ```
 
 **Details in Video**: I'll show you how to complete the task above. 
@@ -296,7 +301,8 @@ There's a lot more we can do with `select()`, but that's enough to get started. 
 
 ```{r}
 
-
+arcos_md_baltimorecity_trimmed <- arcos_md_baltimorecity %>%
+  select(buyer_name, buyer_dea_no, buyer_city, total_dosage_unit, total_records)
 ```
 
 **Details in Video**: I'll show you the answer to the above block. 
@@ -356,7 +362,7 @@ The codeblock below allows us to find the answer to  the question: "which pharma
 
 ```{r}
 arcos_wv_mingo_sorted <- arcos_wv_mingo_trimmed %>%
-  arrange(desc(total_dosage_unit))
+  arrange(total_dosage_unit)
 
 ```
 
@@ -365,7 +371,10 @@ arcos_wv_mingo_sorted <- arcos_wv_mingo_trimmed %>%
 **Task (Write Code and Run It)**: Now it's your turn. Write the code below to answer the question: "Which pharmacy in Baltimore City, Maryland had the most pills sent to it between 2006 and 2014?" Hint: use the arcos_md_baltimorecity_trimmed dataframe as a starting point to answer this question.
 
 ```{r}
+# Answer: NewCare Home Health services
 
+arcos_md_baltimorecity_sorted <- arcos_md_baltimorecity_trimmed %>%
+  arrange(desc(total_records))
 
 ```
 
@@ -399,14 +408,22 @@ Answer the question below by writing code in the empty codeblock.  Edit the comm
 **Task (Write Code and Run It)**: 1. In Baltimore City, which pharmacy got the most shipments between 2006 and 2014? How many shipments did it get?  Hint: the total_records column reflects the number of shipments
 
 ```{r}
-# Answer to question 1: 
+# Answer to question 1: 1 GIANT PHARMACY 166 got 10365 shipments.
+
+arcos_md_baltimorecity_trimmed_sorted <- arcos_md_baltimorecity %>%
+  select(buyer_name, total_records) %>%
+  arrange(desc(total_records))
 
 ```
 
 **Task (Write Code and Run It)**: 2. In Baltimore City, which pharmacy got the smallest number of pills between 2006 and 2014? How many pills did it get?  Hint: the total_dosage_unit column reflects the number of pills.
 
 ```{r}
-# Answer to question 2: 
+# Answer to question 2: JAKOBOVITS, JULIAN MD with 4 total pills.
+
+arcos_md_baltimorecity_trimmed_sorted <- arcos_md_baltimorecity %>%
+  select(buyer_name, total_dosage_unit) %>%
+  arrange(desc(total_dosage_unit))
 
 ```
 
