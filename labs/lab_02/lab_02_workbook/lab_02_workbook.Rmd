@@ -98,7 +98,7 @@ Though there are exceptions, you typically need to install a package once -- the
 
 ```{r}
 # Install the tidyverse
-install.packages('tidyverse')
+# install.packages('tidyverse')
 ```
 
 **Details in Video**: A review of what happens when you install an R package.
@@ -423,7 +423,9 @@ arcos_md_baltimorecity_trimmed_sorted <- arcos_md_baltimorecity %>%
 
 arcos_md_baltimorecity_trimmed_sorted <- arcos_md_baltimorecity %>%
   select(buyer_name, total_dosage_unit) %>%
-  arrange(desc(total_dosage_unit))
+  arrange(total_dosage_unit)
+
+arcos_md_baltimorecity_trimmed_sorted
 
 ```
 
