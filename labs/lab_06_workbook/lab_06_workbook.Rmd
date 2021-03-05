@@ -154,19 +154,16 @@ If you get stuck, look back at this week's in class class assignment for a clue.
 ```{r}
 
 most_pills_per_person <- county_pills_population %>%
-  arrange(pills_per_person)
   
-  # add a line here to create a new column with pills per person AND THEN
+# add a line here to create a new column with pills per person AND THEN
+mutate(pills_per_population = (average_pills_per_year/population)) %>%
   
-  
+# add a line here to sort the new column from highest to lowest 
+ arrange(desc(pills_per_population))
+           
+#I think I have the formula correct but it keeps showing an error.
 
-  # add a line here to sort the new column from highest to lowest 
-
-
-
-# Put the answer here
-
-#I cannot figure this one out. 
+ 
 ```
 
 ## Different types of joins
