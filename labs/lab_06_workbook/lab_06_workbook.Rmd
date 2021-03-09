@@ -156,13 +156,11 @@ If you get stuck, look back at this week's in class class assignment for a clue.
 most_pills_per_person <- county_pills_population %>%
   
 # add a line here to create a new column with pills per person AND THEN
-mutate(pills_per_population = (average_pills_per_year/population)) %>%
-  
+mutate(pills_per_population = average_pills_per_year/population) %>%
+arrange(desc(pills_per_population))
 # add a line here to sort the new column from highest to lowest 
- arrange(desc(pills_per_population))
-           
-#I think I have the formula correct but it keeps showing an error.
 
+#A: Norton City, VA had the most pills per population.
  
 ```
 
