@@ -101,10 +101,11 @@ In this notebook, we are reverse engineering five sentences from the story.
 # Put code to reverse engineer sentence here
 
 population_women_killed <- fatal_police_shootings_data %>%
-  group_by (gender) %>%
-  summarise(women_percent=n()) %>%
-  arrange(desc(women_percent)) 
+  group_by(gender) %>%
+  summarise (women_percent = n())%>%
+  arrange(desc(women_percent))
   
+
 
 # Display results of code below this codeblock
 
