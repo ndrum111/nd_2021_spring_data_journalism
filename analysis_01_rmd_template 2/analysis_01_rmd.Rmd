@@ -53,7 +53,8 @@ In this notebook, we are reverse engineering five sentences from the story.
 
 ### Sentence 1
 
-* **Sentence text**: [Paste in sentence to engineer here]
+* **Sentence text**: “Since 2015, police have killed 26 unarmed women, including Taylor. Of those, 14 were White, seven were Black, four were Hispanic and one’s race was unknown. While about twice as many White women were shot and killed as Black women, White women account for five times the Black female population.”
+
 * **Analysis summary**: Since this article was been written, two more unarmed women were shot and killed by police. So, the true count is 28 unarmed women, not 26. The two most recent deaths were Ashi Babbitt on Jan. 6, 2021 and Evatt Hernandez on Dec. 9, 2020. The race count in the above sentence is very close, but yes, since the article was published, it changed. There are still seven Black women and one woman whose race is unknown, but there are now 15 White women and five Hispanic women. The disparity they point out in the original sentence is still true given the disproportionate population difference between White women and Black women.
 
 ```{r}
@@ -87,7 +88,7 @@ counts_of_race
 
 ### Sentence 2
 
-* **Sentence text**: [Paste in sentence to engineer here]
+* **Sentence text**: “Since 2015, Black women have accounted for less than 1 percent of the overall fatal shootings in cases where race was known. But within this small subset, Black women, who are 13 percent of the female population, account for 20 percent of the women shot and killed and 28 percent of the unarmed deaths.”
 * **Analysis summary**: [Write up two to three sentences describing the results of your analysis.  Were you able to confirm the finding? If not, why not?]
 
 ```{r}
@@ -99,7 +100,7 @@ counts_of_race
 
 ### Sentence 3
 
-* **Sentence text**: [Paste in sentence to engineer here]
+* **Sentence text**: “About 31 percent, or 77, of the 247 women fatally shot by police since 2015 had mental health issues, compared to 22 percent of the 5,362 men killed.”
 * **Analysis summary**: [Write up two to three sentences describing the results of your analysis.  Were you able to confirm the finding? If not, why not?]
 
 ```{r}
@@ -111,7 +112,8 @@ counts_of_race
 
 ### Sentence 4
 
-* **Sentence text**: [Paste in sentence to engineer here]
+* **Sentence text**: “Since The Washington Post began tracking fatal shootings by police in 2015, officers have fatally shot 247 women out of the more than 5,600 people killed overall.”
+
 * **Analysis summary**: Since the Washington Post began tracking fatal shootings by police in 2015, officers have fatally shot 247 women out of the more than 5,600 people killed overall.
 
 ```{r}
@@ -145,7 +147,8 @@ counts_of_race
 
 ### Sentence 5
 
-* **Sentence text**: The starkest difference between men and women is the rate: Women account for about half the population but 4 percent of the killings.
+* **Sentence text**: "The starkest difference between men and women is the rate: Women account for about half the population but 4 percent of the killings."
+
 * **Analysis summary**: My findings show that women account for 4.4 percent of killings between male, female and one N/A. My findings are slightly higher than the original question, maybe due to more killings that have happend since this data was published.  There were 5816 men killed, 270 females and 1 N/A. A total of 6,087. Next, divide 270 by 6,087 multiply it by 100 and get 4.44 percent. 
 
 
