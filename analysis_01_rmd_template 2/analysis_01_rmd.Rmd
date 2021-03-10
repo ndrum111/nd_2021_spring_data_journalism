@@ -146,7 +146,8 @@ counts_of_race
 ### Sentence 5
 
 * **Sentence text**: The starkest difference between men and women is the rate: Women account for about half the population but 4 percent of the killings.
-* **Analysis summary**: [Write up two to three sentences describing the results of your analysis.  Were you able to confirm the finding? If not, why not?]
+* **Analysis summary**: My findings show that women account for 4.4 percent of killings between male, female and one N/A. My findings are slightly higher than the original question, maybe due to more killings that have happend since this data was published.  There were 5816 men killed, 270 females and 1 N/A. A total of 6,087. Next, divide 270 by 6,087 multiply it by 100 and get 4.44 percent. 
+
 
 ```{r}
 # Put code to reverse engineer sentence here
@@ -158,10 +159,7 @@ summarise(amount_killed = n()) %>%
 
 # Display results of code below this codeblock
 
-#My findings show that women account for 4.4 percent of killings between male, female and one N/A. My findings are slightly higher than the original question, maybe due to more killings. There were 5816 men killed, 270 females and 1 N/A. A total of 6,087. Next, divide 270 by 6,087 multiply it by 100 and get 4.44 percent. 
-
-
-
+gender_killed 
 
 ```
 
