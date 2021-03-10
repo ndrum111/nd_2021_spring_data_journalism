@@ -27,7 +27,14 @@ Loading required libraries for this analysis.
 ```{r echo=FALSE, message=FALSE}
 
 ```
-
+```{r}
+# If you are on a new machine you haven't used before, you may need to install these packages before loading.  If that's the case, remove the comment # from in front of the next two lines before running the codeblock, to install the packages before loading.
+install.packages('tidyverse')
+install.packages('vembedr')
+# Load the tidyverse, vembedr
+library(tidyverse)
+library(vembedr)
+```
 ## Load and Cleaning Data
 
 [In this block of text, describe the source of the data, and write a basic data dictionary for data you are working with]
@@ -47,14 +54,36 @@ In this notebook, we are reverse engineering five sentences from the story.
 ### Sentence 1
 
 * **Sentence text**: [Paste in sentence to engineer here]
-* **Analysis summary**: [Write up two to three sentences describing the results of your analysis.  Were you able to confirm the finding? If not, why not?]
+* **Analysis summary**: Since this article was been written, two more unarmed women were shot and killed by police. So, the true count is 28 unarmed women, not 26. The two most recent deaths were Ashi Babbitt on Jan. 6, 2021 and Evatt Hernandez on Dec. 9, 2020. The race count in the above sentence is very close, but yes, since the article was published, it changed. There are still seven Black women and one woman whose race is unknown, but there are now 15 White women and five Hispanic women. The disparity they point out in the original sentence is still true given the disproportionate population difference between White women and Black women.
 
 ```{r}
 # Put code to reverse engineer sentence here
 
+
+# Creates a new dataframe where it filters only for WOMEN who are UNARMED. Arranges them by most recent date of death.
+unarmed_women_by_race <- fatal_police_shootings %>%
+  filter(gender == "F" & armed == "unarmed") %>%
+  arrange(desc(date))
+
+# Creates new dataframe pulling from the dataframe made above. Uses count() function to get a count of how many of each race have died. sort = TRUE displays this count from largest to smallest
+
+counts_of_race <- unarmed_women_by_race %>%
+  group_by(race) %>%
+  count() %>%
+  arrange(desc(n))
+  #count(race, race, wt = NULL, sort = TRUE, name = NULL)
+  
+
+
+# Display results of code below this codeblock
+unarmed_women_by_race
+
+counts_of_race
+
 # Display results of code below this codeblock
 
 ```
+
 
 ### Sentence 2
 
@@ -83,10 +112,32 @@ In this notebook, we are reverse engineering five sentences from the story.
 ### Sentence 4
 
 * **Sentence text**: [Paste in sentence to engineer here]
-* **Analysis summary**: [Write up two to three sentences describing the results of your analysis.  Were you able to confirm the finding? If not, why not?]
+* **Analysis summary**: Since the Washington Post began tracking fatal shootings by police in 2015, officers have fatally shot 247 women out of the more than 5,600 people killed overall.
 
 ```{r}
-# Put code to reverse engineer sentence here
+# Put code to reverse engineer sentence here:
+
+# Creates a new dataframe where it filters only for WOMEN who are UNARMED. Arranges them by most recent date of death.
+unarmed_women_by_race <- fatal_police_shootings %>%
+  filter(gender == "F" & armed == "unarmed") %>%
+  arrange(desc(date))
+
+# Creates new dataframe pulling from the dataframe made above. Uses count() function to get a count of how many of each race have died. sort = TRUE displays this count from largest to smallest
+
+counts_of_race <- unarmed_women_by_race %>%
+  group_by(race) %>%
+  count() %>%
+  arrange(desc(n))
+  #count(race, race, wt = NULL, sort = TRUE, name = NULL)
+  
+
+
+# Display results of code below this codeblock
+unarmed_women_by_race
+
+counts_of_race
+
+
 
 # Display results of code below this codeblock
 
@@ -100,16 +151,17 @@ In this notebook, we are reverse engineering five sentences from the story.
 ```{r}
 # Put code to reverse engineer sentence here
 
-population_women_killed <- fatal_police_shootings_data %>%
-  group_by(gender) %>%
-  summarise (women_percent = n())%>%
-  arrange(desc(women_percent))
-  
-
+gender_killed <- fatal_police_shootings_data %>%
+ group_by(gender) %>%
+summarise(amount_killed = n()) %>%
+  arrange(desc(amount_killed))
 
 # Display results of code below this codeblock
 
-#There were 5816 men killed, 270 females and 1 N/A. Divide 270 by 5816 multiply it by 100 and get 4.64 percent. 
+#My findings show that women account for 4.4 percent of killings between male, female and one N/A. My findings are slightly higher than the original question, maybe due to more killings. There were 5816 men killed, 270 females and 1 N/A. A total of 6,087. Next, divide 270 by 6,087 multiply it by 100 and get 4.44 percent. 
+
+
+
 
 ```
 
