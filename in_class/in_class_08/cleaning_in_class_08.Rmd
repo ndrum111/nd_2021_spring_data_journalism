@@ -33,7 +33,7 @@ Today, we're going to load one package:
 **Task (Run Code)**: run the code below to load the tidyverse and janitor, using the library() function.
 
 ```{r}
-# Load the tidyverse
+#Load the tidyverse
 library(tidyverse)
 
 # Load janitor
@@ -55,7 +55,8 @@ We're filtering the data as we load it, to only keep data for Maryland for each 
 
 # Read in dirty COVID data as an object called county_covid_deaths_dirty
 
-county_covid_deaths_dirty <- read_csv("data/county_covid_deaths_dirty.csv")
+county_covid_deaths_dirty <- read_csv("data/county_covid_deaths_dirty.csv") 
+  
 
 ```
 ## Examine data
@@ -84,7 +85,7 @@ Q: How many deaths are there in the county with FIPS code 24003 -- Anne Arundel?
 
 ```{r}
 county_covid_deaths_dirty %>%
-  filter(FIPS code !, == 24003)
+  filter('FIPS code !', == 24003)
 ```
 
 Q: How many counties are in Maryland?
@@ -203,6 +204,7 @@ county_covid_deaths <- county_covid_deaths_dirty %>%
   mutate(state = tolower(state)) %>%
   mutate(state = case_when(
     county == "Calvert" ~ "maryland",
+    # ~ means change it to
     TRUE ~ state
   )) %>%
   mutate(deaths = case_when(
