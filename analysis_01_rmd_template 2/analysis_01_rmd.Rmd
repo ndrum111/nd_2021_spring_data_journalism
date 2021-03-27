@@ -37,7 +37,7 @@ library(vembedr)
 ```
 ## Load and Cleaning Data
 
-[In this block of text, describe the source of the data, and write a basic data dictionary for data you are working with]
+
 
 ```{r}
 # Load required data
@@ -181,7 +181,7 @@ percent_unarmed_black_women_killed_to_unarmed_women
 ```{r}
 # Put code to reverse engineer sentence here:
 
-total_women_killed <- fatal_police_shootings_data %>%
+total_women_killed <- fatal_police_shootings %>%
   group_by(gender) %>%
   count()
 total_killed <- fatal_police_shootings_data %>%
@@ -207,10 +207,13 @@ total_killed
 ```{r}
 # Put code to reverse engineer sentence here
 
-gender_killed <- fatal_police_shootings_data %>%
+gender_killed <- fatal_police_shootings %>%
  group_by(gender) %>%
-summarise(amount_killed = n()) %>%
-  arrange(desc(amount_killed))
+ summarise(amount_killed = n()) %>%
+ arrange(desc(amount_killed)) %>%
+ mutate(total_killed = sum(amount_killed)) %>%
+ mutate(pct_total_killed = amount_killed/total_killed*100)
+
 
 # Display results of code below this codeblock
 
