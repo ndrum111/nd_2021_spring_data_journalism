@@ -26,16 +26,18 @@ More on censusxy in a bit.
 library(tidyverse)
 
 # Load Tidycensus after installing if necessary
-#install.packages(tidycensus)
+install.packages('tidycensus')
 library(tidycensus)
 
 # Load censusxy for geocoding
 # 
 library(censusxy)
 
+install.packages('janitor')
+library(janitor)
 # Store census API key
 # Use mine for now, in the future use yours
-census_api_key("549950d36c22ff16455fe196bbbd01d63cfbe6cf")
+census_api_key("6938bd8cb404a79233bba0284ddeca2c200074e7")
 
 ```
 
