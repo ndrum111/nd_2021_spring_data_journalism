@@ -1,0 +1,70 @@
+---
+title: "working_ct_data"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## R Markdown
+
+```{r}
+# Tidyverse
+library(tidyverse)
+
+# Load Tidycensus after installing if necessary
+#install.packages(tidycensus)
+library(tidycensus)
+
+# Load censusxy for geocoding
+# 
+library(censusxy)
+
+library(sf)
+library(lubridate)
+
+
+library(janitor)
+
+# Store census API key
+# Use mine for now, in the future use yours
+census_api_key("549950d36c22ff16455fe196bbbd01d63cfbe6cf")
+
+```
+
+
+## Loading in data 
+```{r}
+
+#Read in raw data 
+
+ct_2016_retailer<-read_csv("data_ct/ct_2016_retailer.csv")
+ct_2017_retailer<-read_csv("data_ct/ct_2017_retailer.csv")
+
+
+
+ct_2016<-read_csv("data_ct/ct_2016_sales.csv")%>%
+ 
+  row_to_names(row_number=1)%>%
+  mutate(sales_date=as_date(sales_date,format="%m/%d/%Y"))%>%
+  mutate(year=year(sales_date))%>%
+  mutate(across(play3_sales:keno_sales,~as.numeric(.x)))%>%
+  group_by(store_id,year)%>%
+  summarise(across(play3_sales:keno_sales,~sum(.x)))%>%
+  left_join(ct_2016_retailer)
+  
+ct_2017<-read_csv("data_ct/ct_2017_sales.csv")%>%
+   row_to_names(row_number=1)%>%
+  mutate(sales_date=as_date(sales_date,format="%m/%d/%Y"))%>%
+  mutate(year=year(sales_date))%>%
+  mutate(across(play3_sales:keno_sales,~as.numeric(.x)))%>%
+  group_by(store_id,year)%>%
+  summarise(across(play3_sales:keno_sales,~sum(.x)))%>%
+  left_join(ct_2017_retailer)
+
+ct_sales<-ct_2016%>%
+  bind_rows(ct_2017)
+
+```
+
