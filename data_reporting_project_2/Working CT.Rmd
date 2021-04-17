@@ -39,7 +39,8 @@ census_api_key("549950d36c22ff16455fe196bbbd01d63cfbe6cf")
 
 #Read in raw data 
 
-ct_2016_retailer<-read_csv("data_ct/ct_2016_retailer.csv")
+ct_2016_retailer<-read_csv("data_ct/ct_2016_retailer.csv")%>%
+  mutate(store_id=as.character(store_id))
 ct_2017_retailer<-read_csv("data_ct/ct_2017_retailer.csv")
 
 
@@ -47,12 +48,14 @@ ct_2017_retailer<-read_csv("data_ct/ct_2017_retailer.csv")
 ct_2016<-read_csv("data_ct/ct_2016_sales.csv")%>%
  
   row_to_names(row_number=1)%>%
-  mutate(sales_date=as_date(sales_date,format="%m/%d/%Y"))%>%
+  mutate(sales_date=as_date(sales_date,format="%m/%d/%y"))%>%
   mutate(year=year(sales_date))%>%
   mutate(across(play3_sales:keno_sales,~as.numeric(.x)))%>%
   group_by(store_id,year)%>%
   summarise(across(play3_sales:keno_sales,~sum(.x)))%>%
-  left_join(ct_2016_retailer)
+  left_join(ct_2016_retailer)%>%
+  mutate(store_zipcode=str_pad(store_zipcode,5,side="left",pad="0"))
+
   
 ct_2017<-read_csv("data_ct/ct_2017_sales.csv")%>%
    row_to_names(row_number=1)%>%
