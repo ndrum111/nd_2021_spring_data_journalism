@@ -74,3 +74,158 @@ ct_sales<-ct_2016%>%
 
 ```
 
+## Get data for median household income for each county in Connecticut in 2016.
+
+```{r}
+ct_county_median_household_income <- get_acs(geography = "county", state="CT",
+              variables="B19013_001", year=2016, geometry = FALSE )
+
+ct_county_median_household_income
+
+```
+
+## This function pulls all the avaiable variables for 2012 from the acs, with data from the previous 5 years averaged into a single estimate. 
+
+```{r}
+acs_variables <- load_variables(2016, "acs5")
+```
+
+# Get a data table with demographic information
+
+
+```{r}
+## Get list of states (Exclude non-states, except DC)
+states <- fips_codes %>%
+  select(state) %>%
+  distinct() %>%
+  head(51) %>%
+  as_vector() 
+
+# Get ZCTA data for all states   
+zcta_stats <- get_acs(geography = "zcta", variables = c( "B01001_001","B02001_002","B02001_003","B02001_004","B03001_003","B06012_002","B19013_001"), year = 2016) %>%
+  select(GEOID, variable, estimate) %>%
+  pivot_wider(names_from=variable, values_from=estimate) %>%
+  rename(
+    total_pop = B01001_001,
+    white_pop = B02001_002,
+    black_pop = B02001_003,
+    native_pop = B02001_004,
+    hispanic_pop = B03001_003,
+    poverty_pop = B06012_002,
+    median_income = B19013_001
+  ) %>%
+  mutate(pct_white = round(white_pop/total_pop,2)*100,
+         pct_nonwhite = 100-round(white_pop/total_pop,2)*100,
+         pct_black = round(black_pop/total_pop,2)*100,
+         pct_native = round(native_pop/total_pop,2)*100,
+         pct_hispanic = round(hispanic_pop/total_pop,2)*100,
+         pct_poverty = round(poverty_pop/total_pop,2)*100
+         ) %>%
+  clean_names() %>%
+  mutate(fips_code_state = str_sub(geoid,start=1L,end=2L),
+         geoid=str_sub(geoid, start=3L,end=7L)) %>%
+  select(fips_code_state,geoid,-ends_with("pop"), starts_with("pct"),median_income) 
+
+  
+# Get census tract data for all states
+census_tract_stats <- get_acs(geography = "tract", variables = c( "B01001_001","B02001_002","B02001_003","B02001_004","B03001_003","B06012_002","B19013_001"), state=states,year = 2016) %>%
+  select(GEOID, variable, estimate) %>%
+  pivot_wider(names_from=variable, values_from=estimate) %>%
+  rename(
+    total_pop = B01001_001,
+    white_pop = B02001_002,
+    black_pop = B02001_003,
+    native_pop = B02001_004,
+    hispanic_pop = B03001_003,
+    poverty_pop = B06012_002,
+    median_income = B19013_001
+  ) %>%
+  mutate(pct_white = round(white_pop/total_pop,2)*100,
+         pct_nonwhite = 100-round(white_pop/total_pop,2)*100,
+         pct_black = round(black_pop/total_pop,2)*100,
+         pct_native = round(native_pop/total_pop,2)*100,
+         pct_hispanic = round(hispanic_pop/total_pop,2)*100,
+         pct_poverty = round(poverty_pop/total_pop,2)*100
+         ) %>%
+  clean_names() %>%
+  select(geoid,-ends_with("pop"), starts_with("pct"),median_income)
+
+
+```
+## Get data for median household income for each county in Connecticut in 2016.
+```{r}
+ct_county_median_household_income <- get_acs(geography = "county", state="CT",
+              variables="B19013_001", year=2017, geometry = FALSE )
+
+ct_county_median_household_income
+
+```
+
+## This function pulls all the avaiable variables for 2012 from the acs, with data from the previous 5 years averaged into a single estimate. 
+
+```{r}
+acs_variables <- load_variables(2017, "acs5")
+```
+
+# Get a data table with demographic information
+
+
+```{r}
+## Get list of states (Exclude non-states, except DC)
+states <- fips_codes %>%
+  select(state) %>%
+  distinct() %>%
+  head(51) %>%
+  as_vector() 
+
+# Get ZCTA data for all states   
+zcta_stats <- get_acs(geography = "zcta", variables = c( "B01001_001","B02001_002","B02001_003","B02001_004","B03001_003","B06012_002","B19013_001"), year = 2017) %>%
+  select(GEOID, variable, estimate) %>%
+  pivot_wider(names_from=variable, values_from=estimate) %>%
+  rename(
+    total_pop = B01001_001,
+    white_pop = B02001_002,
+    black_pop = B02001_003,
+    native_pop = B02001_004,
+    hispanic_pop = B03001_003,
+    poverty_pop = B06012_002,
+    median_income = B19013_001
+  ) %>%
+  mutate(pct_white = round(white_pop/total_pop,2)*100,
+         pct_nonwhite = 100-round(white_pop/total_pop,2)*100,
+         pct_black = round(black_pop/total_pop,2)*100,
+         pct_native = round(native_pop/total_pop,2)*100,
+         pct_hispanic = round(hispanic_pop/total_pop,2)*100,
+         pct_poverty = round(poverty_pop/total_pop,2)*100
+         ) %>%
+  clean_names() %>%
+  mutate(fips_code_state = str_sub(geoid,start=1L,end=2L),
+         geoid=str_sub(geoid, start=3L,end=7L)) %>%
+  select(fips_code_state,geoid,-ends_with("pop"), starts_with("pct"),median_income) 
+
+  
+# Get census tract data for all states
+census_tract_stats <- get_acs(geography = "tract", variables = c( "B01001_001","B02001_002","B02001_003","B02001_004","B03001_003","B06012_002","B19013_001"), state=states,year = 2017) %>%
+  select(GEOID, variable, estimate) %>%
+  pivot_wider(names_from=variable, values_from=estimate) %>%
+  rename(
+    total_pop = B01001_001,
+    white_pop = B02001_002,
+    black_pop = B02001_003,
+    native_pop = B02001_004,
+    hispanic_pop = B03001_003,
+    poverty_pop = B06012_002,
+    median_income = B19013_001
+  ) %>%
+  mutate(pct_white = round(white_pop/total_pop,2)*100,
+         pct_nonwhite = 100-round(white_pop/total_pop,2)*100,
+         pct_black = round(black_pop/total_pop,2)*100,
+         pct_native = round(native_pop/total_pop,2)*100,
+         pct_hispanic = round(hispanic_pop/total_pop,2)*100,
+         pct_poverty = round(poverty_pop/total_pop,2)*100
+         ) %>%
+  clean_names() %>%
+  select(geoid,-ends_with("pop"), starts_with("pct"),median_income)
+
+
+```
