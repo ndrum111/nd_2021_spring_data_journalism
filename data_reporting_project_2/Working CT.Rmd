@@ -229,3 +229,13 @@ census_tract_stats <- get_acs(geography = "tract", variables = c( "B01001_001","
 
 
 ```
+
+
+```{r}
+# Question 1: Are lottery ticket sales (overall or population adjusted) higher at retailers located in low-income or non-white areas?
+
+ct_zcta_stats <- zcta_stats %>%
+  
+  filter(fips_code_state == "09")
+```
+
