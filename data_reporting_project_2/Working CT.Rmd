@@ -34,7 +34,7 @@ census_api_key("549950d36c22ff16455fe196bbbd01d63cfbe6cf")
 ```
 
 
-## Loading in data 
+## Loading in raw data 
 ```{r}
 
 #Read in raw data 
@@ -91,7 +91,6 @@ acs_variables <- load_variables(2016, "acs5")
 ```
 
 # Get a data table with demographic information
-
 
 ```{r}
 ## Get list of states (Exclude non-states, except DC)
@@ -152,7 +151,7 @@ census_tract_stats <- get_acs(geography = "tract", variables = c( "B01001_001","
 
 
 ```
-## Get data for median household income for each county in Connecticut in 2016.
+## Get data for median household income for each county in Connecticut in 2017.
 ```{r}
 ct_county_median_household_income <- get_acs(geography = "county", state="CT",
               variables="B19013_001", year=2017, geometry = FALSE )
@@ -167,8 +166,7 @@ ct_county_median_household_income
 acs_variables <- load_variables(2017, "acs5")
 ```
 
-# Get a data table with demographic information
-
+# Get a data table with demographic information for 2017
 
 ```{r}
 ## Get list of states (Exclude non-states, except DC)
@@ -229,7 +227,7 @@ census_tract_stats <- get_acs(geography = "tract", variables = c( "B01001_001","
 
 
 ```
-
+## Question 1
 
 ```{r}
 # Question 1: Are lottery ticket sales (overall or population adjusted) higher at retailers located in low-income or non-white areas?
