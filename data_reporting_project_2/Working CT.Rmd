@@ -56,8 +56,10 @@ ct_2016<-read_csv("data_ct/ct_2016_sales.csv")%>%
   group_by(store_id,year)%>%
   summarise(across(play3_sales:keno_sales,~sum(.x)))%>%
   left_join(ct_2016_retailer)%>%
-  mutate(store_zipcode=str_pad(store_zipcode,5,side="left",pad="0"))
-
+  mutate(store_zipcode=str_pad(store_zipcode,5,side="left",pad="0"))%>%
+  #mutate(all_games_total= play3_sales+play4_sales+lotto_sales+cash5_sales+powerball_sales+midday3_sales+middday4sales+lucky_sales+instant_sales+mega_sales+superdraw_sales+fivecc_sales+llinksd_sales+llinksn_sales+keno_sales)
+  #mutate(average_sales_per_week=all_games_total/52)
+  
   
 ct_2017<-read_csv("data_ct/ct_2017_sales.csv")%>%
   row_to_names(row_number=1)%>%
@@ -68,6 +70,9 @@ ct_2017<-read_csv("data_ct/ct_2017_sales.csv")%>%
   summarise(across(play3_sales:keno_sales,~sum(.x)))%>%
   left_join(ct_2017_retailer)%>%
  mutate(store_zipcode=str_pad(store_zipcode,5,side="left",pad="0"))
+ #check games in 2017 for games
+#mutate(all_games_total= play3_sales+play4_sales+lotto_sales+cash5_sales+powerball_sales+midday3_sales+middday4sales+lucky_sales+instant_sales+mega_sales+superdraw_sales+fivecc_sales+llinksd_sales+llinksn_sales+keno_sales)
+  #mutate(average_sales_per_week=all_games_total/52)
 
 ct_sales<-ct_2016%>%
   bind_rows(ct_2017)
