@@ -1,0 +1,680 @@
+---
+title: "data_reporting_2_master"
+author: "Eric Harkleroad, Natalie Drum, Pierce Panagakos, Jack Rasiel"
+date: "4/18/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Load in the required packages to clean the data
+
+```{r}
+library(tidyverse)
+library(vembedr)
+library(janitor)
+library(dplyr)
+library(tidycensus)
+library(censusxy)
+library(lubridate)
+library(sf)
+
+
+census_api_key("549950d36c22ff16455fe196bbbd01d63cfbe6cf")
+
+```
+####--- West Virginia ---####
+
+# Read in the raw WV data
+
+```{r}
+new_retailer_data <- read.csv("./data/wv/new_retailer_list.csv") %>%
+  clean_names()
+  #mutate(id = as.character(i_id))
+
+
+retailer_sales_data <- read.csv("./data/wv/retailer_sales_data.csv") %>%
+  mutate_all(funs(ifelse(is.na(.), 0, .))) %>%
+  clean_names() %>%
+  rename(id = retailer_id) %>%
+  mutate(week_ending = as_date (week_ending, format = "%m/%d/%y")) %>%
+  mutate(year_name = year(week_ending)) %>%
+  mutate(year_name = as.character(year_name)) %>%
+  select(-week_ending) %>%
+  mutate(id = as.character(id)) %>%
+  select(-lotto_america, -all_star_bonus, -just_the_jackpot, -mega_million, -mega_plier) %>%
+  #mutate(lotto_america = as.numeric(lotto_america), mega_million = as.numeric(mega_million), mega_plier = as.numeric(mega_plier)) %>%
+  mutate(across(where(is.numeric), ~replace_na(.x))) %>%
+  select(id, year_name, everything()) %>%
+  mutate(all_games_total = instant + daily_3 + daily_4 + cash_25 + hot_lotto + sizzler + powerball + powerplay) %>%
+  select(id, year_name, all_games_total) %>%
+  group_by(id, year_name) %>%
+  summarise(all_games_total = sum(all_games_total)) %>%
+  mutate(avg_per_week = all_games_total/52)
+  ####
+
+
+
+
+```
+
+# Check for missing data in CSVs given by the agency
+
+```{r}
+
+# inner join of retailer ids to find locations
+
+joined_ids <- retailer_sales_data %>%
+  inner_join(new_retailer_data)
+
+
+```
+
+
+
+
+####---Connecticut Part 1---####
+
+## Loading in raw CT data for 2016 & 2017
+```{r}
+
+#Read in raw data
+
+ct_2016_retailer<-read_csv("./data/ct/ct_2016_retailer.csv")%>%
+  mutate(store_id=as.character(store_id))
+
+ct_2017_retailer<-read_csv("./data/ct/ct_2017_retailer.csv")%>%
+  mutate(store_id=as.character(store_id))
+
+
+ct_2016<-read_csv("data/ct/ct_2016_sales.csv")%>%
+ 
+  row_to_names(row_number=1)%>%
+  mutate(sales_date=as_date(sales_date,format="%m/%d/%y"))%>%
+  mutate(year=year(sales_date))%>%
+  mutate(across(play3_sales:keno_sales,~as.numeric(.x)))%>%
+  group_by(store_id,year)%>%
+  summarise(across(play3_sales:keno_sales,~sum(.x)))%>%
+  left_join(ct_2016_retailer)%>%
+  mutate(store_zipcode=str_pad(store_zipcode,5,side="left",pad="0"))%>%
+  
+
+ct_2017<-read_csv("data/ct/ct_2017_sales.csv")%>%
+  
+  row_to_names(row_number=1)%>%
+  mutate(sales_date=as_date(sales_date,format="%m/%d/%y"))%>%
+  mutate(year=year(sales_date))%>%
+  mutate(across(play3_sales:keno_sales,~as.numeric(.x)))%>%
+  group_by(store_id,year)%>%
+  summarise(across(play3_sales:keno_sales,~sum(.x)))%>%
+  left_join(ct_2017_retailer)%>%
+  mutate(store_zipcode=str_pad(store_zipcode,5,side="left",pad="0"))%>%
+ 
+
+ct_sales<-ct_2016%>%
+  bind_rows(ct_2017)
+
+
+  ###This Mutate is not working
+mutate(all_games_total=play3_sales+play4_sales+lotto_sales+cash5_sales+powerball_sales+midday3_sales+midday4sales+lucky_sales+instant_sales+mega_sales+superdraw_sales+fivecc_sales+llinksd_sales+llinksn_sales+keno_sales)%>%
+  group_by(id, year_name)%>%
+  summarise(all_games_total=sum(all_games_total))%>%
+
+mutate(average_sales_per_week=all_games_total/52)
+
+
+```
+
+```{r}
+CTLottery_Sales_Calendar_2018_ALL_Retailers<-read_csv("./data/ct/CTLottery_Sales_Calendar_2018_ALL_Retailers.csv")
+row_to_names(row_number=1)%>%
+  mutate(sales_date=as_date(sales_date,format="%m/%d/%Y"))%>%
+  mutate(year=year(sales_date))%>%
+  mutate(across(play3_sales:keno_sales,~as.numeric(.x)))%>%
+  group_by(store_id,year)%>%
+  summarise(across(play3_sales:keno_sales,~sum(.x)))%>%
+  left_join (CTLottery_Retailer_List_Calendar_2018)
+```
+
+
+
+```{r}
+CTLottery_Sales_Calendar_2019_ALL_Retailers_1_<-read_csv("./data/ct/CTLottery_Sales_Calendar_2019_ALL_Retailers.csv")
+row_to_names(row_number=1)%>%
+  mutate(sales_date=as_date(sales_date,format="%m/%d/%Y"))%>%
+  mutate(year=year(sales_date))%>%
+  mutate(across(play3_sales:keno_sales,~as.numeric(.x)))%>%
+  group_by(store_id,year)%>%
+  summarise(across(play3_sales:keno_sales,~sum(.x)))%>%
+  left_join (CTLottery_Retailer_List_Calendar_2019)
+```
+```{r}
+
+```
+
+```{r}
+CTLottery_Sales_Calendar_2020_ALL_Retailers<-read_csv("./data/ct/CTLottery_Sales_Calendar_2020_ALL_Retailers.csv")
+row_to_names(row_number=1)%>%
+  mutate(sales_date=as_date(sales_date,format="%m/%d/%Y"))%>%
+  mutate(year=year(sales_date))%>%
+  mutate(across(play3_sales:keno_sales,~as.numeric(.x)))%>%
+  group_by(store_id,year)%>%
+  summarise(across(play3_sales:keno_sales,~sum(.x)))%>%
+  left_join (CTLottery_Retailer_List_Calendar_2020)
+```
+
+
+## Get data for median household income for each county in Connecticut in 2016.
+
+```{r}
+ct_county_median_household_income <- get_acs(geography = "county", state="CT",
+              variables="B19013_001", year=2016, geometry = FALSE )
+
+ct_county_median_household_income
+
+```
+
+## Get data for median household income for each county in Connecticut in 2017.
+```{r}
+ct_county_median_household_income <- get_acs(geography = "county", state="CT",
+              variables="B19013_001", year=2017, geometry = FALSE )
+
+ct_county_median_household_income
+
+```
+
+
+####---Illinois---####
+## Loading in raw data
+```{r}
+illinois_sales_data <- read_csv('./data/il/illinois_sales_data.csv')
+
+# NOTE:  the data does not appear to need any cleaning!  See scripts/illinois_data.py
+
+# Cast cols to appropriate types:
+illinois_sales_data <- illinois_sales_data %>%
+  mutate(
+    instant_sales = as.numeric(gsub('\\$|,', '',instant_sales)),
+    pick_3_sales = as.numeric(gsub('\\$|,', '',pick_3_sales)),
+    pick_4_sales = as.numeric(gsub('\\$|,', '',pick_4_sales)),
+    LDL_sales = as.numeric(gsub('\\$|,', '',LDL_sales)),
+    lotto_sales = as.numeric(gsub('\\$|,', '',lotto_sales)),
+    MM_sales = as.numeric(gsub('\\$|,', '',MM_sales)),
+    PB_sales = as.numeric(gsub('\\$|,', '',PB_sales)))
+```
+
+## Get data for median household income for each county in Illinois in 2016.
+
+```{r}
+il_county_median_household_income <- get_acs(geography = "county", state="IL",
+              variables="B19013_001", year=2016, geometry = FALSE )
+
+il_county_median_household_income
+
+```
+
+
+####---Loading Census Data---####
+
+```{r}
+acs_variables <- load_variables(2016, "acs5")
+
+## Get list of states (Exclude non-states, except DC)
+states <- fips_codes %>%
+  select(state) %>%
+  distinct() %>%
+  head(51) %>%
+  as_vector()
+
+# Get ZCTA data for all states   
+zcta_stats <- get_acs(geography = "zcta", variables = c( "B01001_001","B02001_002","B02001_003","B02001_004","B03001_003","B06012_002","B19013_001"), year = 2018) %>%
+  select(GEOID, variable, estimate) %>%
+  pivot_wider(names_from=variable, values_from=estimate) %>%
+  rename(
+    total_pop = B01001_001,
+    white_pop = B02001_002,
+    black_pop = B02001_003,
+    native_pop = B02001_004,
+    hispanic_pop = B03001_003,
+    poverty_pop = B06012_002,
+    median_income = B19013_001
+  ) %>%
+  mutate(pct_white = round(white_pop/total_pop,2)*100,
+         pct_nonwhite = 100-round(white_pop/total_pop,2)*100,
+         pct_black = round(black_pop/total_pop,2)*100,
+         pct_native = round(native_pop/total_pop,2)*100,
+         pct_hispanic = round(hispanic_pop/total_pop,2)*100,
+         pct_poverty = round(poverty_pop/total_pop,2)*100
+         ) %>%
+  clean_names() %>%
+  mutate(fips_code_state = str_sub(geoid,start=1L,end=2L),
+         geoid=str_sub(geoid, start=3L,end=7L)) %>%
+  select(fips_code_state,geoid,-ends_with("pop"), starts_with("pct"),median_income)
+
+# Get census tract data for all states
+census_tract_stats <- get_acs(geography = "tract", variables = c( "B01001_001","B02001_002","B02001_003","B02001_004","B03001_003","B06012_002","B19013_001"), state=states,year = 2017) %>%
+  select(GEOID, variable, estimate) %>%
+  pivot_wider(names_from=variable, values_from=estimate) %>%
+  rename(
+    total_pop = B01001_001,
+    white_pop = B02001_002,
+    black_pop = B02001_003,
+    native_pop = B02001_004,
+    hispanic_pop = B03001_003,
+    poverty_pop = B06012_002,
+    median_income = B19013_001
+  ) %>%
+  mutate(pct_white = round(white_pop/total_pop,2)*100,
+         pct_nonwhite = 100-round(white_pop/total_pop,2)*100,
+         pct_black = round(black_pop/total_pop,2)*100,
+         pct_native = round(native_pop/total_pop,2)*100,
+         pct_hispanic = round(hispanic_pop/total_pop,2)*100,
+         pct_poverty = round(poverty_pop/total_pop,2)*100
+         ) %>%
+  clean_names() %>%
+  select(geoid,-ends_with("pop"), starts_with("pct"),median_income)
+```
+
+####################################
+########### QUESTION 1 #############
+####################################
+
+#```{r}
+##  DO_QUESTION_1: generate the sales-vs-income and sales-vs-race plots for a given state.
+##
+## PARAMETERS:
+##     fips_code:  int - the fips_code for this state
+##     data:       The lottery salees dataframe for the state.  
+##                 Each row must be a unique establishment/retailer.
+##                 (i.e., if your data has one row per week/year for retailers,
+##                   aggregate all of those rows into a single row for that retailer!)
+##                 MUST HAVE these columns (rename to match these names exactly):
+##                !!!!   estab_name, estab_zip, avg_sales_per_week  !!!!
+##                   (can have other columns, but these are the ones the function uses)
+##
+## RETURNS:
+##   plots:    a list with the two plots.  You can access them like this:
+##               by_income = plots$by_income
+##               by_race = plots$by_race
+#do_question_1 <- function(fips_code, data) {
+#  # 1- get geocodes for each establishment.  Get zip code / tract for each geocode.
+#        # in: fips_code, data
+#        # out: data, with new column "zip"
+#
+#  ############
+#  # 2- group establishments by zip code/ tract.
+#        # out:  estabs_by_zip: "data" but grouped by zip.
+# estabs_by_zip <- data %>% # your code here!
+#
+#  ############
+#  # 3- for each zip code group: sum sales data across establishments in that group.
+#
+#  # Result: total_sales_per_zip, a table where each row is a zip code, with its aggregate sales data.
+#  total_sales_per_zip <- estabs_by_zip %>%
+#
+#  ############
+#  # 4- divide weekly_sales by population of that zip code
+#
+#  # Result:  total_sales_per_zip with new column "weekly_sales_per_capita"
+#  total_sales_per_zip <- total_sales_per_zip %>%
+#
+#  ############
+#  # 5- get demographic data: racial and income
+#  #         - (TODO - how define "non-white areas")
+#  #         - (TODO - how define "low income areas")
+#  # Result:  total_sales_per_zip with new columns for income and race demographics
+#  total_sales_per_zip <- total_sales_per_zip %>%
+#
+#  ############
+#  # 6- plot!
+#  #        - scatterplot:  % non-white vs lottery sales
+#  #        - scatterplot:  income vs lottery sales
+#  # Result:  plots of the data from total_sales_per_zip.
+#  #          Most obvious choice would be a simple scatterplot, but, of course,
+#  #           you can do what you like!
+#  total_sales_per_zip <- total_sales_per_zip %>%
+#  plot_by_income <- # the plot
+#  plot_by_race<- # the plot
+#
+#  # The return values:
+#  plots <- list("by_income" = plot_by_income, "by_race" = plot_by_race)
+#}
+#```
+
+```{r}
+# WV Census
+
+## Get list of states (Exclude non-states, except DC)
+states <- fips_codes %>%
+  select(state) %>%
+  distinct() %>%
+  head(51) %>%
+  as_vector()
+
+# Get ZCTA data for all states   
+zcta_stats <- get_acs(geography = "zcta", variables = c( "B01001_001","B02001_002","B02001_003","B02001_004","B03001_003","B06012_002","B19013_001"), year = 2018) %>%
+  select(GEOID, variable, estimate) %>%
+  pivot_wider(names_from=variable, values_from=estimate) %>%
+  rename(
+    total_pop = B01001_001,
+    white_pop = B02001_002,
+    black_pop = B02001_003,
+    native_pop = B02001_004,
+    hispanic_pop = B03001_003,
+    poverty_pop = B06012_002,
+    median_income = B19013_001
+  ) %>%
+  mutate(pct_white = round(white_pop/total_pop,2)*100,
+         pct_nonwhite = 100-round(white_pop/total_pop,2)*100,
+         pct_black = round(black_pop/total_pop,2)*100,
+         pct_native = round(native_pop/total_pop,2)*100,
+         pct_hispanic = round(hispanic_pop/total_pop,2)*100,
+         pct_poverty = round(poverty_pop/total_pop,2)*100
+         ) %>%
+  clean_names() %>%
+  mutate(fips_code_state = str_sub(geoid,start=1L,end=2L),
+         geoid=str_sub(geoid, start=3L,end=7L)) %>%
+  select(fips_code_state,geoid, total_pop, starts_with("pct"),median_income)
+
+wv_census <- zcta_stats %>%
+  filter(fips_code_state == 54) %>%
+  rename(l_zip = geoid) %>%
+  mutate(l_zip = as.numeric(l_zip))
+
+
+#lets join
+
+wv_census_joined <- joined_ids %>%
+  group_by(id, l_zip) %>%
+  summarise(all_games_total = sum(all_games_total)) %>%
+  inner_join(wv_census) %>%
+  ungroup() %>%
+  select(id, all_games_total, l_zip, pct_white, pct_poverty, median_income, total_pop) %>%
+  mutate(income_bucket = ntile(median_income, 5),
+         white_bucket = ntile(pct_white, 5),
+         poverty_bucket = ntile(pct_poverty, 5),
+         pop_bucket = ntile(total_pop, 5))
+
+
+
+wv_income_bucket <- wv_census_joined %>%
+  group_by(income_bucket) %>%
+  summarise(mean_sales = mean(all_games_total),
+            max_income = max(median_income),
+            )
+
+wv_white_bucket <- wv_census_joined %>%
+  group_by(white_bucket) %>%
+  summarise(mean_sales = mean(all_games_total),
+            max_white = max(pct_white),
+            )
+
+
+wv_poverty_bucket <- wv_census_joined %>%
+  group_by(poverty_bucket) %>%
+  summarise(mean_sales = mean(all_games_total),
+            max_poverty = max(pct_poverty),
+            )
+
+wv_pop_bucket <- wv_census_joined %>%
+  group_by(pop_bucket) %>%
+  summarise(mean_sales = mean(all_games_total),
+            max_pop = max(total_pop),
+            )
+
+
+# Answer: In looking at the data both overall and standardizing for population, I do not see a correlation between lottery sales and race, poverty or median income.
+# (Jack's note) WV is an unusual case because it is so racially homogeneous:  ~93 pct non-hispanic white.  So there's probably not much reason to do marketing targeted on race.  Also, many of those white people are poor -- so the correlation between race and income correlation is probably weaker than in more diverse states. 
+```
+
+
+##############################################
+
+
+```{r}
+
+#  DO_QUESTION_1: generate the sales-vs-income and sales-vs-race plots for a given state.
+#
+# PARAMETERS:
+#     fips_code:  int - the fips_code for this state
+#     data:       The lottery salees dataframe for the state.  
+#                 Each row must be a unique establishment/retailer.
+#                 (i.e., if your data has one row per week/year for retailers,
+#                   aggregate all of those rows into a single row for that retailer!)
+#                 MUST HAVE these columns (rename to match these names exactly):
+#                !!!!   estab_name, estab_zip, avg_sales_per_week  !!!!
+#                   (can have other columns, but these are the ones the function uses)
+#
+# RETURNS:
+#   plots:    a list with the two plots.  You can access them like this:
+#               by_income = plots$by_income
+#               by_race = plots$by_race
+do_question_1 <- function(fips_code, data) {
+census <- zcta_stats %>%
+  filter(fips_code_state == fips_code) %>%
+  rename(l_zip = geoid) %>%
+  mutate(l_zip = as.numeric(l_zip))
+
+
+#lets join
+
+census_joined <- joined_ids %>%
+  group_by(id, l_zip) %>%
+  summarise(avg_sales_per_week = sum(avg_sales_per_week)) %>%
+  inner_join(census) %>%
+  ungroup() %>%
+  select(id, avg_sales_per_week, l_zip, pct_white, pct_poverty, median_income, total_pop) %>%
+  mutate(income_bucket = ntile(median_income, 5),
+         white_bucket = ntile(pct_white, 5),
+         poverty_bucket = ntile(pct_poverty, 5),
+         pop_bucket = ntile(total_pop, 5))
+
+
+
+income_bucket <- census_joined %>%
+  group_by(income_bucket) %>%
+  summarise(mean_sales = mean(avg_sales_per_week),
+            max_income = max(median_income),
+            )
+
+white_bucket <- census_joined %>%
+  group_by(white_bucket) %>%
+  summarise(mean_sales = mean(avg_sales_per_week),
+            max_white = max(pct_white),
+            )
+
+
+poverty_bucket <- census_joined %>%
+  group_by(poverty_bucket) %>%
+  summarise(mean_sales = mean(avg_sales_per_week),
+            max_poverty = max(pct_poverty),
+            )
+
+pop_bucket <- census_joined %>%
+  group_by(pop_bucket) %>%
+  summarise(mean_sales = mean(avg_sales_per_week),
+            max_pop = max(total_pop),
+            )
+
+  buckets <- list("income" = income_bucket, "white" = white_bucket,"poverty" = poverty_bucket, "population" = pop_bucket)
+}
+```
+
+#### ILLINOIS ####
+# Question 1: Are lottery ticket sales (overall or population adjusted) higher at retailers located in low-income or non-white areas?
+
+```{r}
+# Format data for the function:
+# REMEMBER, the function expects these columns: estab_name, estab_zip, avg_sales_per_week
+# Rename cols to match expectations:  
+illinois_sales_data <- illinois_sales_data %>%
+  mutate(estab_name = retailer_name, estab_zip = retailer_address_zip_code)
+
+# Compute sales per week
+illinois_sales_data_agg <- illinois_sales_data %>% group_by(retailer_id) %>%
+  summarise(total_sales = sum(instant_sales, pick_3_sales , pick_4_sales ,
+                        LDL_sales, lotto_sales, MM_sales, PB_sales),
+            num_years_present_in_data = n() ) %>%
+  mutate(avg_sales_per_week = total_sales / (52 * num_years_present_in_data))
+
+# Now, generate the plots via the function call!
+buckets <- do_question_1(17, illinois_sales_data_agg) # IL's FIPS code is 17
+# Access the different summary stats like so:
+glimps(buckets$income)
+## show the plots:
+#plots$by_income
+#plots$by_race
+```
+
+#### WEST VIRGINIA ####
+# Question 1: Are lottery ticket sales (overall or population adjusted) higher at retailers located in low-income or non-white areas?
+
+```{r}
+#wv_zcta_stats <- zcta_stats %>%
+#  # Select only WV Zcta data
+#  filter(fips_code_state == "54")
+#
+#joined_wv_data <- wv_zcta_stats %>%
+#  inner_join(wv_zcta_stats, retailer_sales_data, by = "geoid")
+```
+
+#### Connecticut ####
+# Question 1: Are lottery ticket sales (overall or population adjusted) higher at retailers located in low-income or non-white areas?
+
+```{r}
+# CT Census
+## Get list of states (Exclude non-states, except DC)
+states <- fips_codes %>%
+  select(state) %>%
+  distinct() %>%
+  head(51) %>%
+  as_vector()
+# Get ZCTA data for all states   
+zcta_stats <- get_acs(geography = "zcta", variables = c( "B01001_001","B02001_002","B02001_003","B02001_004","B03001_003","B06012_002","B19013_001"), year = 2018) %>%
+  select(GEOID, variable, estimate) %>%
+  pivot_wider(names_from=variable, values_from=estimate) %>%
+  rename(
+    total_pop = B01001_001,
+    white_pop = B02001_002,
+    black_pop = B02001_003,
+    native_pop = B02001_004,
+    hispanic_pop = B03001_003,
+    poverty_pop = B06012_002,
+    median_income = B19013_001
+  ) %>%
+  mutate(pct_white = round(white_pop/total_pop,2)*100,
+         pct_nonwhite = 100-round(white_pop/total_pop,2)*100,
+         pct_black = round(black_pop/total_pop,2)*100,
+         pct_native = round(native_pop/total_pop,2)*100,
+         pct_hispanic = round(hispanic_pop/total_pop,2)*100,
+         pct_poverty = round(poverty_pop/total_pop,2)*100
+         ) %>%
+  clean_names() %>%
+  
+mutate(fips_code_state = str_sub(geoid,start=1L,end=2L),geoid=str_sub(geoid, start=3L,end=7L)) %>%
+  select(fips_code_state,geoid, total_pop, starts_with("pct"),median_income)
+
+  
+ct_census <- zcta_stats %>%
+  filter(fips_code_state == 09) %>%
+  rename(l_zip = geoid) %>%
+  mutate(l_zip = as.numeric(l_zip))
+
+
+
+
+#lets join
+
+ct_census_joined <- joined_ids %>%
+  group_by(id,year_name) %>%
+  summarise(all_games_total = sum(all_games_total)) %>%
+  inner_join(ct_census) %>%
+  ungroup() %>%
+  select(id, all_games_total, pct_white, pct_poverty, median_income, total_pop)%>%
+  mutate(income_bucket = ntile(median_income, 5),
+         white_bucket = ntile(pct_white, 5),
+         poverty_bucket = ntile(pct_poverty, 5),
+         pop_bucket = ntile(total_pop, 5))
+ct_income_bucket <- ct_census_joined %>%
+  group_by(income_bucket) %>%
+  summarise(mean_sales = mean(all_games_total),
+            max_income = max(median_income),
+            )
+ct_white_bucket <- ct_census_joined %>%
+  group_by(white_bucket) %>%
+  summarise(mean_sales = mean(all_games_total),
+            max_white = max(pct_white),
+            )
+ct_poverty_bucket <- ct_census_joined %>%
+  group_by(poverty_bucket) %>%
+  summarise(mean_sales = mean(all_games_total),
+            max_poverty = max(pct_poverty),
+            )
+ct_pop_bucket <- ct_census_joined %>%
+  group_by(pop_bucket) %>%
+  summarise(mean_sales = mean(all_games_total),
+            max_pop = max(total_pop),
+            )
+```
+
+#### ILLINOIS ####
+# Question 1: Are lottery ticket sales (overall or population adjusted) higher at retailers located in low-income or non-white areas?
+
+```{r}
+# Format data for the function:
+# REMEMBER, the function expects these columns: estab_name, estab_zip, avg_sales_per_week
+# Rename cols to match expectations:  
+illinois_sales_data <- illinois_sales_data %>%
+  mutate(estab_name = retailer_name, estab_zip = retailer_address_zip_code)
+
+# Compute sales per week
+illinois_sales_data_agg <- illinois_sales_data %>% group_by(retailer_id) %>%
+  summarise(total_sales = sum(instant_sales, pick_3_sales , pick_4_sales ,
+                        LDL_sales, lotto_sales, MM_sales, PB_sales),
+            num_years_present_in_data = n() ) %>%
+  mutate(avg_sales_per_week = total_sales / (52 * num_years_present_in_data))
+
+# Now, generate the plots via the function call!
+buckets <- do_question_1(17, illinois_sales_data_agg) # IL's FIPS code is 17
+# Access the different summary stats like so:
+glimpse(buckets$income)
+## show the plots:
+#plots$by_income
+#plots$by_race
+```
+```
+
+####################################
+########### QUESTION 3 #############
+####################################
+
+
+# Jack's brief brainstorm:
+#  - how does proportion non-white, or income skew, change over time?
+#  - how did the pandemic change lottery-buying habits?  Did the changes effect different groups differently
+#      (e.g., did lower income people buy fewer lottery tickets, because their wallets were harder hit 
+#      by pandemic-related job loss?)
+#  - data limitations:
+#    - WV: weekly sales, 2014-07 thru 2020-06
+#    - CT: 
+#    - IL: *yearly* sales, for 2016 thru 2020
+  
+#### ILLINOIS ####
+# Question 3: Have any of the sales trends we've identified changed over the last few years, especially when comparing trends before and during the pandemic?
+
+```{r}
+```
+
+#### WEST VIRGINIA ####
+# Question 3: Have any of the sales trends we've identified changed over the last few years, especially when comparing trends before and during the pandemic?
+
+```{r}
+```
+
+#### CONNECTICUT ####
+# Question 3: Have any of the sales trends we've identified changed over the last few years, especially when comparing trends before and during the pandemic?
+
+```{r}
+```
