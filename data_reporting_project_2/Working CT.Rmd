@@ -57,8 +57,12 @@ ct_2016<-read_csv("data_ct/ct_2016_sales.csv")%>%
   summarise(across(play3_sales:keno_sales,~sum(.x)))%>%
   left_join(ct_2016_retailer)%>%
   mutate(store_zipcode=str_pad(store_zipcode,5,side="left",pad="0"))%>%
-  #mutate(all_games_total= play3_sales+play4_sales+lotto_sales+cash5_sales+powerball_sales+midday3_sales+middday4sales+lucky_sales+instant_sales+mega_sales+superdraw_sales+fivecc_sales+llinksd_sales+llinksn_sales+keno_sales)
-  #mutate(average_sales_per_week=all_games_total/52)
+  
+  #create all games total
+  mutate(all_games_total=play3_sales+play4_sales+lotto_sales+cash5_sales+powerball_sales+midday3_sales+midday4_sales+lucky_sales+instant_sales+mega_sales+superdraw_sales+fivecc_sales+llinksd_sales+llinksn_sales+keno_sales)%>%
+  
+  #create average of the games total divided by 52
+  mutate(average_sales_per_week=all_games_total/52)
   
   
 ct_2017<-read_csv("data_ct/ct_2017_sales.csv")%>%
@@ -69,10 +73,12 @@ ct_2017<-read_csv("data_ct/ct_2017_sales.csv")%>%
   group_by(store_id,year)%>%
   summarise(across(play3_sales:keno_sales,~sum(.x)))%>%
   left_join(ct_2017_retailer)%>%
- mutate(store_zipcode=str_pad(store_zipcode,5,side="left",pad="0"))
- #check games in 2017 for games
-#mutate(all_games_total= play3_sales+play4_sales+lotto_sales+cash5_sales+powerball_sales+midday3_sales+middday4sales+lucky_sales+instant_sales+mega_sales+superdraw_sales+fivecc_sales+llinksd_sales+llinksn_sales+keno_sales)
-  #mutate(average_sales_per_week=all_games_total/52)
+ mutate(store_zipcode=str_pad(store_zipcode,5,side="left",pad="0"))%>%
+ 
+  #THIS BELOW IS NOT WORKING
+mutate(all_games_total= play3_sales+play4_sales+lotto_sales+cash5_sales+powerball_sales+midday3_sales+midday4sales+lucky_sales+instant_sales+mega_sales+superdraw_sales+fivecc_sales+llinksd_sales+llinksn_sales+keno_sales)
+mutate(average_sales_per_week=all_games_total/52)
+  
 
 ct_sales<-ct_2016%>%
   bind_rows(ct_2017)
